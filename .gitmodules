@@ -43,3 +43,10 @@
 [submodule "lib/rETHERC4626"]
 	path = lib/rETHERC4626
 	url = https://github.com/rocket-pool/rETHERC4626
+[submodule "lib/ccip"]
+	path = lib/ccip
+	url = https://github.com/smartcontractkit/ccip
+	branch = ccip-develop
+[submodule "lib/chainlink"]
+	path = lib/chainlink
+	url = https://github.com/smartcontractkit/chainlink

@@ -17,6 +17,13 @@ import { TwabController } from "pt-v5-twab-controller/TwabController.sol";
 /// @dev The TWAB supply limit is the max number of shares that can be minted in the TWAB controller.
 uint256 constant TWAB_SUPPLY_LIMIT = type(uint96).max;
 
+// @TODO 
+/* Set Host and Tipper roles
+ - Host: The event organizer who receives all deposits from Tippers
+ - Tipper: Deposit but they get the delegated balance
+ - 
+
+*/
 /// @title  PoolTogether V5 Prize Vault
 /// @author G9 Software Inc.
 /// @notice The prize vault takes deposits of an asset and earns yield with the deposits through an underlying yield
@@ -287,6 +294,10 @@ contract PrizeVault is TwabERC20, Claimable, IERC4626, ILiquidationSource, Ownab
     ////////////////////////////////////////////////////////////////////////////////
     // Constructor
     ////////////////////////////////////////////////////////////////////////////////
+
+    // TODO 
+    // integrate add CCIP constructors
+
 
     /// @notice Vault constructor
     /// @param name_ Name of the ERC20 share minted by the vault
