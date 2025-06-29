@@ -20,8 +20,8 @@ max_test_rejects = 100000
 runs = 100
 max_test_rejects = 1000
 
-[profile.cancun]
-evm_version = "cancun"
+[profile.Cancun]
+evm_version = "Cancun"
 
 [rpc_endpoints]
 mainnet = "${MAINNET_RPC_URL}"
@@ -35,8 +35,32 @@ goerli = "${GOERLI_RPC_URL}"
 arbitrum-goerli = "${ARBITRUM_GOERLI_RPC_URL}"
 optimism-goerli = "${OPTIMISM_GOERLI_RPC_URL}"
 polygon-mumbai = "${POLYGON_MUMBAI_RPC_URL}"
-avalancheFuji = "${AVALANCHE_FUJI_RPC_URL}"
+ethereumSepolia = "${ETHEREUM_SEPOLIA_RPC_URL}"
+baseSepolia = "${BASE_SEPOLIA_RPC_URL}"
 base-sepolia = "${BASE_SEPOLIA_RPC_URL}"
+avalancheFuji = "${AVALANCHE_FUJI_RPC_URL}"
+optimismGoerli = "${OPTIMISM_GOERLI_RPC_URL}"
+arbitrumSepolia = "${ARBITRUM_SEPOLIA_RPC_URL}"
+polygonMumbai = "${POLYGON_MUMBAI_RPC_URL}"
+bnbChainTestnet = "${BNB_CHAIN_TESTNET_RPC_URL}"
+metisSepolia = "${METIS_SEPOLIA_RPC_URL}"
+zksyncSepolia = "${ZKSYNC_SEPOLIA_RPC_URL}"
+scrollSepolia = "${SCROLL_SEPOLIA_RPC_URL}"
+zircuitSepolia = "${ZIRCUIT_SEPOLIA_RPC_URL}"
+xlayerSepolia = "${XLAYER_SEPOLIA_RPC_URL}"
+polygonZkevmSepolia = "${POLYGON_ZKEVM_SEPOLIA_RPC_URL}"
+polkadotAstarShibuya = "${POLKADOT_ASTAR_SHIBUYA_RPC_URL}"
+mantleSepolia = "${MANTLE_SEPOLIA_RPC_URL}"
+soneiumMinatoSepolia = "${SONEIUM_MINATO_SEPOLIA_RPC_URL}"
+bsquaredTestnet = "${BSQUARED_TESTNET_RPC_URL}"
+bobSepolia = "${BOB_SEPOLIA_RPC_URL}"
+worldchainSepolia = "${WORLDCHAIN_SEPOLIA_RPC_URL}"
+shibariumTestnet = "${SHIBARIUM_TESTNET_RPC_URL}"
+bitlayerTestnet= "${BITLAYER_TESTNET_RPC_URL}"
+fantomSonicTestnet = "${FANTOM_SONIC_TESTNET_RPC_URL}"
+cornTestnet = "${CORN_TESTNET_RPC_URL}"
+hashkeySepolia = "${HASHKEY_SEPOLIA_RPC_URL}"
+inkSepolia = "${INK_SEPOLIA_RPC_URL}"
 
 [etherscan]
 mainnet = { key = "${ETHERSCAN_API_KEY}", url = "https://api.etherscan.io/api" }

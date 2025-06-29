@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import {OwnerIsCreator} from "@chainlink/contracts/src/v0.8/shared/access/OwnerIsCreator.sol";
 import {Client} from "@chainlink/contracts-ccip/libraries/Client.sol";
 import {CCIPReceiver} from "@chainlink/contracts-ccip/applications/CCIPReceiver.sol";
 import {IERC20} from "@chainlink/contracts/src/v0.8/vendor/openzeppelin-solidity/v4.8.3/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@chainlink/contracts/src/v0.8/vendor/openzeppelin-solidity/v4.8.3/contracts/token/ERC20/utils/SafeERC20.sol";
 import {EnumerableMap} from "@chainlink/contracts/src/v0.8/vendor/openzeppelin-solidity/v4.8.3/contracts/utils/structs/EnumerableMap.sol";
+import {AuthorizedCallers} from "@chainlink/contracts/src/v0.8/shared/access/AuthorizedCallers.sol";
 
 /**
  * THIS IS AN EXAMPLE CONTRACT THAT USES HARDCODED VALUES FOR CLARITY.
@@ -17,7 +17,7 @@ import {EnumerableMap} from "@chainlink/contracts/src/v0.8/vendor/openzeppelin-s
 // Destination Chain CCIP RECEIVER CONTRACT
 
 /// @title - A simple receiver contract for receiving usdc tokens then calling a staking contract.
-contract Receiver is CCIPReceiver, OwnerIsCreator {
+contract Receiver is CCIPReceiver, AuthorizedCallers {
     using SafeERC20 for IERC20;
     using EnumerableMap for EnumerableMap.Bytes32ToUintMap;
 
@@ -60,8 +60,7 @@ contract Receiver is CCIPReceiver, OwnerIsCreator {
     }
 
     IERC20 private immutable i_usdcToken;       //@audit-info could add extra tokens
-    address private immutable i_staker;         //@audit-info will change PrizeVault contract - this will be the Prize Vault contract
-    //address private immutable i_prizeVault;
+    address public s_staker; // @audit-info will change PrizeVault contract - this will be the Prize Vault contract
 
     // Mapping to keep track of the sender contract per source chain.
     mapping(uint64 => address) public s_senders;
@@ -91,13 +90,26 @@ contract Receiver is CCIPReceiver, OwnerIsCreator {
     constructor(
         address _router,
         address _usdcToken,
-        address _staker
-    ) CCIPReceiver(_router) {
+        address _staker,
+        address[] memory authorizedCallers
+    ) CCIPReceiver(_router) AuthorizedCallers(authorizedCallers) {
         if (_usdcToken == address(0)) revert InvalidUsdcToken();
-        if (_staker == address(0)) revert InvalidStaker();
         i_usdcToken = IERC20(_usdcToken);
-        i_staker = _staker;
-        i_usdcToken.safeApprove(_staker, type(uint256).max); //@audit-info dunno if I need this for the main contract
+        if (_staker != address(0)) {
+            s_staker = _staker;
+            i_usdcToken.safeApprove(
+                _staker,
+                type(uint256).max
+            ); //@audit-info dunno if I need this for the main contract
+        }
+    }
+
+    /// @notice Sets the staker address. Can only be called by an authorized caller.
+    /// @param _staker The new staker address.
+    function setStakerAddress(address _staker) external onlyAuthorizedCallers {
+        if (_staker == address(0)) revert InvalidStaker();
+        s_staker = _staker;
+        i_usdcToken.safeApprove(_staker, type(uint256).max);
     }
 
     /// @dev Set the sender contract for a given source chain.
@@ -107,7 +119,7 @@ contract Receiver is CCIPReceiver, OwnerIsCreator {
     function setSenderForSourceChain(
         uint64 _sourceChainSelector,
         address _sender
-    ) external onlyOwner validateSourceChain(_sourceChainSelector) {
+    ) external onlyAuthorizedCallers validateSourceChain(_sourceChainSelector) {
         if (_sender == address(0)) revert InvalidSenderAddress();
         s_senders[_sourceChainSelector] = _sender;
     }
@@ -117,7 +129,7 @@ contract Receiver is CCIPReceiver, OwnerIsCreator {
     /// @param _sourceChainSelector The selector of the source chain.
     function deleteSenderForSourceChain(
         uint64 _sourceChainSelector
-    ) external onlyOwner validateSourceChain(_sourceChainSelector) {
+    ) external onlyAuthorizedCallers validateSourceChain(_sourceChainSelector) {
         if (s_senders[_sourceChainSelector] == address(0))
             revert NoSenderOnSourceChain(_sourceChainSelector);
         delete s_senders[_sourceChainSelector];
@@ -173,7 +185,7 @@ contract Receiver is CCIPReceiver, OwnerIsCreator {
                 any2EvmMessage.destTokenAmounts[0].token
             );
 
-        (bool success, bytes memory returnData) = i_staker.call(
+        (bool success, bytes memory returnData) = s_staker.call(
             any2EvmMessage.data
         ); // low level call to the staker contract using the encoded function selector and arguments
         if (!success) revert CallToStakerFailed();
