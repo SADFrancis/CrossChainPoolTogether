@@ -12,6 +12,7 @@ export SOURCE_USDC=
 export RECEIVER_ROUTER=
 export RECEIVER_USDC=
 export SOURCE_CHAIN_SELECTOR=
+export SENDER_CONTRACT_ADDRESS=
 export STAKER_CONTRACT_ADDRESS=
 
 # Hot wallet mnemonic phrase
