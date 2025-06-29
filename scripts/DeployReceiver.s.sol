@@ -7,20 +7,27 @@ import { Receiver } from "../src/ccip-usdc-example/Receiver.sol";
 // To deploy:
 // export SENDER_CONTRACT_ADDRESS=<Your Sender Contract Address on Avalanche Fuji>
 // export STAKER_CONTRACT_ADDRESS=<Your PrizeVault Address on Base Sepolia> (optional, set to 0x0)
+//
 // source .envrc or .env
 // set a private key wallet (named 'defaultKey') if needed: cast wallet import defaultKey --interactive
 //
 // forge script ./scripts/DeployReceiver.s.sol:DeployReceiver --rpc-url baseSepolia --account defaultKey --sender yourEthAddress --broadcast -vvvvv
 
 contract DeployReceiver is Script {
-    // Base Sepolia Addresses
-    address router = vm.envAddress("RECEIVER_ROUTER");
-    address usdcToken = vm.envAddress("RECEIVER_USDC");
-
-    // Avalanche Fuji (Source Chain) Details
-    uint64 sourceChainSelector = vm.env("SOURCE_CHAIN_SELECTOR");
-
     function run() external {
+        // Base Sepolia Addresses
+        address router = vm.envAddress("RECEIVER_ROUTER");
+        address usdcToken = vm.envAddress("RECEIVER_USDC");
+
+        // Avalanche Fuji (Source Chain) Details
+        uint256 sourceChainSelector256 = vm.envUint("SOURCE_CHAIN_SELECTOR");
+        require(
+            (sourceChainSelector256 <= type(uint64).max),
+            "SOURCE_CHAIN_SELECTOR value is too large for a uint64"
+        );
+
+        uint64 sourceChainSelector = uint64(sourceChainSelector256);
+
         address senderContract = vm.envAddress("SENDER_CONTRACT_ADDRESS");
         if (senderContract == address(0)) {
             revert("SENDER_CONTRACT_ADDRESS must be set in your environment");
