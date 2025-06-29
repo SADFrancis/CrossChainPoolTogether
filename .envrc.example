@@ -2,6 +2,7 @@
 export MNEMONIC=""
 
 # Hot wallet private key 0x...
+# or use Forge: `cast wallet import defaultKey --interactive`
 export HDWALLET_PRIVATE_KEY=""
 
 # Mainnet RPC URLs
