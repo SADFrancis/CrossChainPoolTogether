@@ -1,10 +1,71 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import "forge-std/Script.sol";
+
+import "../lib/forge-std/src/Script.sol";
 import {Receiver} from "../src/ccip-usdc-example/Receiver.sol";
 
 // To deploy:
+// export SENDER_CONTRACT_ADDRESS=<Your Sender Contract Address on Avalanche Fuji>
+// export STAKER_CONTRACT_ADDRESS=<Your PrizeVault Address on Base Sepolia> (optional, set to 0x0)
+// source .envrc or .env
+// forge script ./scripts/DeployReceiver.s.sol:DeployReceiver --rpc-url baseSepolia --broadcast -vvvvv
 
-// source .env
-// forge script ./script/DeployTransferUSDC.s.sol:DeployTransferUSDC -vvv --broadcast --rpc-url avalancheFuji
+contract DeployReceiver is Script {
+    // Base Sepolia Addresses
+    address router = 0xD3b06cEbF099CE7DA4AcCf578aaebFDBd6e88a93;
+    address usdcToken = 0x036CbD53842c5426634e7929541eC2318f3dCF7e;
+
+    // Avalanche Fuji (Source Chain) Details
+    uint64 sourceChainSelector = 14767482510784806043;
+
+    function run() external {
+        address senderContract = vm.envAddress("SENDER_CONTRACT_ADDRESS");
+        if (senderContract == address(0)) {
+            revert("SENDER_CONTRACT_ADDRESS must be set in your environment");
+        }
+
+        // The staker address is optional. If not provided, it can be set later.
+        address stakerContract = vm.envOr("STAKER_CONTRACT_ADDRESS", address(0));
+
+        uint256 deployerPrivateKey = vm.envUint("HDWALLET_PRIVATE_KEY");
+        if (deployerPrivateKey == 0) {
+            revert("HDWALLET_PRIVATE_KEY must be set in your .env or .envrc file");
+        }
+        address deployerAddress = vm.addr(deployerPrivateKey);
+
+        vm.startBroadcast(deployerPrivateKey);
+
+        // The deployer of the contract will be an authorized caller.
+        // Add other authorized callers as needed.
+        address[] memory authorizedCallers = new address[](3);
+        authorizedCallers[0] = deployerAddress; // The deployer is an authorized caller.
+        authorizedCallers[1] = 0xe865658aF136ffcF2D12BE81ED825239FF295A6D;
+        authorizedCallers[2] = 0x82E0Cd516dB8f4fa09bE0083aa11Bf9C80Ef3eA0;
+
+        // Deploy the Receiver contract with staker address as 0x0
+        // The staker address can be set later via setStakerAddress.
+        Receiver receiver = new Receiver(router, usdcToken, address(0), authorizedCallers);
+
+        console.log("Receiver contract deployed to: ", address(receiver));
+
+        // Set the sender for the source chain (Avalanche Fuji)
+        receiver.setSenderForSourceChain(sourceChainSelector, senderContract);
+
+        console.log("Sender for source chain selector %s set to %s", sourceChainSelector, senderContract);
+
+        // If a staker contract address was provided, set it.
+        if (stakerContract != address(0)) {
+            receiver.setStakerAddress(stakerContract);
+            console.log("Staker (PrizeVault) address set to: ", stakerContract);
+
+            // Verify the staker address was set correctly on-chain
+            address currentStaker = receiver.s_staker(); // This calls the public getter for s_staker
+            console.log("Check the set staker address from contract: ", currentStaker);
+        } else {
+            console.log("No STAKER_CONTRACT_ADDRESS provided. It can be set later by an authorized caller.");
+        }
+
+        vm.stopBroadcast();
+    }
+}

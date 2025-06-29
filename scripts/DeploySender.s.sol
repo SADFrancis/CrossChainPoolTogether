@@ -1,18 +1,19 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import "forge-std/Script.sol";
+import "../lib/forge-std/src/Script.sol";
 import { Sender } from "../src/ccip-usdc-example/USDCSender.sol";
 
 // deploying this to avalanche Fuji
-// source .env
-// forge script ./scripts/DeploySender.s.sol:DeploySender --vvv --rpc-url avalancheFuji --broadcast
+// source .envrc or .env
+// forge script ./scripts/DeploySender.s.sol:DeploySender --rpc-url avalancheFuji  --broadcast -vvvvv
+// cast call contractaddress "getAllAuthorizedCallers()" --rpc-url avalancheFuji
 
 contract DeploySender is Script {
     // Avalanche Fuji Addresses
     address router = 0xF694E193200268f9a4868e4Aa017A0118C9a8177;
     address link = 0x0b9d5D9136855f6FEc3c0993feE6E9CE8a297846;
-    address usdcToken = 0x5425890298aed601595a70AB815c96711a31B684;
+    address usdcToken = 0x5425890298aed601595a70AB815c96711a31Bc65;
 
     function run() public {
         uint256 deployerPrivateKey = vm.envUint("HDWALLET_PRIVATE_KEY");
