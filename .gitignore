@@ -9,6 +9,7 @@ out/
 /broadcast/**/dry-run/
 
 .DS_Store
+.env
 .envrc
 node_modules
 
