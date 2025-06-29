@@ -5,8 +5,11 @@ import {Sender} from "../src/ccip-usdc-example/USDCSender.sol";
 
 
 // deploying this to avalanche Fuji
-// source .env
-// forge script ./script/DeployTransferUSDC.s.sol:DeployTransferUSDC -vvv --broadcast --rpc-url avalancheFuji
+//  echo 'eval "$(direnv hook bash)"' >> ~/.bashrc
+//  source ~/.bashrc
+// direnv allow
+// forge script ./scripts/DeploySender.s.sol:DeploySender -vvvv --broadcast --rpc-url avalancheFuji --verify
+
 
 contract DeploySender is Script {
     function run() public {
@@ -17,16 +20,16 @@ contract DeploySender is Script {
     /// @param _router The address of the router contract.
     /// @param _link The address of the link contract.
     /// @param _usdcToken The address of the usdc contract.
-        // Sender sender = new Sender(
-        //    // /*address*/ _router, 
-        //    // /*address*/ _link,
-        //   //  /*address*/ _usdcToken
-        //     );
+        Sender sender = new Sender(
+           vm.envAddress("SOURCE_ROUTER"),// /*address*/ _router, 
+           vm.envAddress("SOURCE_LINK"),// /*address*/ _link,
+          vm.envAddress("SOURCE_USDC")//  /*address*/ _usdcToken
+            );
 
-        // console.log(
-        //     "Sender contract deployed to ",
-        //     address(sender)
-        // );
+        console.log(
+            "Sender contract deployed to ",
+            address(sender)
+        );
 
         vm.stopBroadcast();
     }
