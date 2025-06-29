@@ -7,6 +7,10 @@ solc = "0.8.24"
 fs_permissions = [{ access = "read", path = "./broadcast" }]
 gas_reports = ["PrizeVault", "PrizeVaultWrapper", "PrizeVaultFactory"]
 no_match_contract = "Integration"
+optimizer = true
+optimizer-runs = 200
+etherscan_api_key = "${ETHERSCAN_API_KEY}"
+
 
 [fuzz]
 runs = 1000
@@ -33,6 +37,7 @@ optimism-goerli = "${OPTIMISM_GOERLI_RPC_URL}"
 polygon-mumbai = "${POLYGON_MUMBAI_RPC_URL}"
 ethereumSepolia = "${ETHEREUM_SEPOLIA_RPC_URL}"
 baseSepolia = "${BASE_SEPOLIA_RPC_URL}"
+base-sepolia = "${BASE_SEPOLIA_RPC_URL}"
 avalancheFuji = "${AVALANCHE_FUJI_RPC_URL}"
 optimismGoerli = "${OPTIMISM_GOERLI_RPC_URL}"
 arbitrumSepolia = "${ARBITRUM_SEPOLIA_RPC_URL}"
@@ -63,9 +68,12 @@ arbitrum = { key = "${ARBITRUM_ETHERSCAN_API_KEY}", url = "https://api.arbiscan.
 optimism = { key = "${OPTIMISM_ETHERSCAN_API_KEY}", url = "https://api-optimistic.etherscan.io/api" }
 polygon = { key = "${POLYGONSCAN_API_KEY}", url = "https://api.polygonscan.com/api" }
 
+
+
 goerli = { key = "${ETHERSCAN_API_KEY}", url = "https://api-goerli.etherscan.io/api" }
 arbitrum-goerli = { key = "${ARBITRUM_ETHERSCAN_API_KEY}", url = "https://api-goerli.arbiscan.io/api" }
 optimism-goerli = { key = "${OPTIMISM_ETHERSCAN_API_KEY}", url = "https://api-goerli-optimistic.etherscan.io/api" }
 polygon-mumbai = { key = "${POLYGONSCAN_API_KEY}", url = "https://api-testnet.polygonscan.com/api" }
+#base_sepolia = {key = "${BASESCAN_API_KEY}", url = "https://api-sepolia.basescan.org/api"}
 
 # See more config options https://github.com/foundry-rs/foundry/tree/master/config

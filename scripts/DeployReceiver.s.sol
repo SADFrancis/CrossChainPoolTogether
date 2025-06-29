@@ -8,17 +8,17 @@ import { Receiver } from "../src/ccip-usdc-example/Receiver.sol";
 // export SENDER_CONTRACT_ADDRESS=<Your Sender Contract Address on Avalanche Fuji>
 // export STAKER_CONTRACT_ADDRESS=<Your PrizeVault Address on Base Sepolia> (optional, set to 0x0)
 // source .envrc or .env
-// set a private key wallet (named 'defaultKey')if needed: cast wallet import defaultKey --interactive
+// set a private key wallet (named 'defaultKey') if needed: cast wallet import defaultKey --interactive
 //
 // forge script ./scripts/DeployReceiver.s.sol:DeployReceiver --rpc-url baseSepolia --account defaultKey --sender yourEthAddress --broadcast -vvvvv
 
 contract DeployReceiver is Script {
     // Base Sepolia Addresses
-    address router = 0xD3b06cEbF099CE7DA4AcCf578aaebFDBd6e88a93;
-    address usdcToken = 0x036CbD53842c5426634e7929541eC2318f3dCF7e;
+    address router = vm.envAddress("RECEIVER_ROUTER");
+    address usdcToken = vm.envAddress("RECEIVER_USDC");
 
     // Avalanche Fuji (Source Chain) Details
-    uint64 sourceChainSelector = 14767482510784806043;
+    uint64 sourceChainSelector = vm.env("SOURCE_CHAIN_SELECTOR");
 
     function run() external {
         address senderContract = vm.envAddress("SENDER_CONTRACT_ADDRESS");
@@ -31,8 +31,6 @@ contract DeployReceiver is Script {
 
         address deployerAddress = msg.sender;
 
-        vm.startBroadcast();
-
         // The deployer of the contract will be an authorized caller.
         // Add other authorized callers as needed.
         address[] memory authorizedCallers = new address[](3);
@@ -40,9 +38,11 @@ contract DeployReceiver is Script {
         authorizedCallers[1] = 0xe865658aF136ffcF2D12BE81ED825239FF295A6D;
         authorizedCallers[2] = 0x82E0Cd516dB8f4fa09bE0083aa11Bf9C80Ef3eA0;
 
-        // Deploy the Receiver contract with staker address as 0x0
+        vm.startBroadcast();
+
+        // Deploy the Receiver contract with staker address
         // The staker address can be set later via setStakerAddress.
-        Receiver receiver = new Receiver(router, usdcToken, address(0), authorizedCallers);
+        Receiver receiver = new Receiver(router, usdcToken, stakerContract, authorizedCallers);
 
         console.log("Receiver contract deployed to: ", address(receiver));
 
