@@ -1,15 +1,16 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-
 import "../lib/forge-std/src/Script.sol";
-import {Receiver} from "../src/ccip-usdc-example/Receiver.sol";
+import { Receiver } from "../src/ccip-usdc-example/Receiver.sol";
 
 // To deploy:
 // export SENDER_CONTRACT_ADDRESS=<Your Sender Contract Address on Avalanche Fuji>
 // export STAKER_CONTRACT_ADDRESS=<Your PrizeVault Address on Base Sepolia> (optional, set to 0x0)
 // source .envrc or .env
-// forge script ./scripts/DeployReceiver.s.sol:DeployReceiver --rpc-url baseSepolia --broadcast -vvvvv
+// set a private key wallet (named 'defaultKey')if needed: cast wallet import defaultKey --interactive
+//
+// forge script ./scripts/DeployReceiver.s.sol:DeployReceiver --rpc-url baseSepolia --account defaultKey --sender yourEthAddress --broadcast -vvvvv
 
 contract DeployReceiver is Script {
     // Base Sepolia Addresses
@@ -28,13 +29,9 @@ contract DeployReceiver is Script {
         // The staker address is optional. If not provided, it can be set later.
         address stakerContract = vm.envOr("STAKER_CONTRACT_ADDRESS", address(0));
 
-        uint256 deployerPrivateKey = vm.envUint("HDWALLET_PRIVATE_KEY");
-        if (deployerPrivateKey == 0) {
-            revert("HDWALLET_PRIVATE_KEY must be set in your .env or .envrc file");
-        }
-        address deployerAddress = vm.addr(deployerPrivateKey);
+        address deployerAddress = msg.sender;
 
-        vm.startBroadcast(deployerPrivateKey);
+        vm.startBroadcast();
 
         // The deployer of the contract will be an authorized caller.
         // Add other authorized callers as needed.
@@ -52,7 +49,11 @@ contract DeployReceiver is Script {
         // Set the sender for the source chain (Avalanche Fuji)
         receiver.setSenderForSourceChain(sourceChainSelector, senderContract);
 
-        console.log("Sender for source chain selector %s set to %s", sourceChainSelector, senderContract);
+        console.log(
+            "Sender for source chain selector %s set to %s",
+            sourceChainSelector,
+            senderContract
+        );
 
         // If a staker contract address was provided, set it.
         if (stakerContract != address(0)) {
@@ -63,7 +64,9 @@ contract DeployReceiver is Script {
             address currentStaker = receiver.s_staker(); // This calls the public getter for s_staker
             console.log("Check the set staker address from contract: ", currentStaker);
         } else {
-            console.log("No STAKER_CONTRACT_ADDRESS provided. It can be set later by an authorized caller.");
+            console.log(
+                "No STAKER_CONTRACT_ADDRESS provided. It can be set later by an authorized caller."
+            );
         }
 
         vm.stopBroadcast();

@@ -6,7 +6,9 @@ import { Sender } from "../src/ccip-usdc-example/USDCSender.sol";
 
 // deploying this to avalanche Fuji
 // source .envrc or .env
-// forge script ./scripts/DeploySender.s.sol:DeploySender --rpc-url avalancheFuji  --broadcast -vvvvv
+// set a private key wallet (named 'defaultKey')if needed: cast wallet import defaultKey --interactive
+//
+// forge script ./scripts/DeploySender.s.sol:DeploySender --rpc-url avalancheFuji --account defaultKey --sender yourEthAddress --broadcast -vvvvv
 // cast call contractaddress "getAllAuthorizedCallers()" --rpc-url avalancheFuji
 
 contract DeploySender is Script {
@@ -16,16 +18,11 @@ contract DeploySender is Script {
     address usdcToken = 0x5425890298aed601595a70AB815c96711a31Bc65;
 
     function run() public {
-        uint256 deployerPrivateKey = vm.envUint("HDWALLET_PRIVATE_KEY");
-        if (deployerPrivateKey == 0) {
-            revert("HDWALLET_PRIVATE_KEY must be set in your .env or .envrc file");
-        }
-        address deployerAddress = vm.addr(deployerPrivateKey);
-
-        vm.startBroadcast(deployerPrivateKey);
+        vm.startBroadcast();
 
         // The deployer of the contract will be the owner and can add/remove callers later.
-
+        address deployerAddress = msg.sender;
+        
         address[] memory authorizedCallers = new address[](3);
         authorizedCallers[0] = deployerAddress; // The deployer is an authorized caller.
         authorizedCallers[1] = 0xe865658aF136ffcF2D12BE81ED825239FF295A6D;
@@ -38,5 +35,3 @@ contract DeploySender is Script {
         vm.stopBroadcast();
     }
 }
-
-
