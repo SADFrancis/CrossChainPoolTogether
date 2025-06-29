@@ -2,10 +2,10 @@
 pragma solidity ^0.8.24; // adding the carrot cause I'm sick of the error popping up
 
 import {IRouterClient} from "@chainlink/contracts-ccip/interfaces/IRouterClient.sol";
-import {OwnerIsCreator} from "@chainlink/contracts/src/v0.8/shared/access/OwnerIsCreator.sol";
 import {Client} from "@chainlink/contracts-ccip/libraries/Client.sol";
 import {IERC20} from "@chainlink/contracts/src/v0.8/vendor/openzeppelin-solidity/v4.8.3/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@chainlink/contracts/src/v0.8/vendor/openzeppelin-solidity/v4.8.3/contracts/token/ERC20/utils/SafeERC20.sol";
+import {AuthorizedCallers} from "@chainlink/contracts/src/v0.8/shared/access/AuthorizedCallers.sol";
 
 /**
  * THIS IS AN EXAMPLE CONTRACT THAT USES HARDCODED VALUES FOR CLARITY.
@@ -26,7 +26,7 @@ interface IPrizeVault {
 }
 
 /// @title - A simple messenger contract for transferring tokens to a receiver  that calls a staker contract.
-contract Sender is OwnerIsCreator {
+contract Sender is AuthorizedCallers {
     using SafeERC20 for IERC20;
 
     // Custom errors to provide more descriptive revert messages.
@@ -72,7 +72,12 @@ contract Sender is OwnerIsCreator {
     /// @param _router The address of the router contract.
     /// @param _link The address of the link contract.
     /// @param _usdcToken The address of the usdc contract.
-    constructor(address _router, address _link, address _usdcToken) {
+    constructor(
+        address _router,
+        address _link,
+        address _usdcToken,
+        address[] memory authorizedCallers
+    ) AuthorizedCallers(authorizedCallers) {
         if (_router == address(0)) revert InvalidRouter();
         if (_link == address(0)) revert InvalidLinkToken();
         if (_usdcToken == address(0)) revert InvalidUsdcToken();
@@ -88,7 +93,7 @@ contract Sender is OwnerIsCreator {
     function setReceiverForDestinationChain(
         uint64 _destinationChainSelector,
         address _receiver
-    ) external onlyOwner validateDestinationChain(_destinationChainSelector) {
+    ) external onlyAuthorizedCallers validateDestinationChain(_destinationChainSelector) {
         if (_receiver == address(0)) revert InvalidReceiverAddress();
         s_receivers[_destinationChainSelector] = _receiver;
     }
@@ -100,7 +105,7 @@ contract Sender is OwnerIsCreator {
     function setGasLimitForDestinationChain(
         uint64 _destinationChainSelector,
         uint256 _gasLimit
-    ) external onlyOwner validateDestinationChain(_destinationChainSelector) {
+    ) external onlyAuthorizedCallers validateDestinationChain(_destinationChainSelector) {
         if (_gasLimit == 0) revert InvalidGasLimit();
         s_gasLimits[_destinationChainSelector] = _gasLimit;
     }
@@ -110,7 +115,7 @@ contract Sender is OwnerIsCreator {
     /// @param _destinationChainSelector The selector of the destination chain.
     function deleteReceiverForDestinationChain(
         uint64 _destinationChainSelector
-    ) external onlyOwner validateDestinationChain(_destinationChainSelector) {
+    ) external onlyAuthorizedCallers validateDestinationChain(_destinationChainSelector) {
         if (s_receivers[_destinationChainSelector] == address(0))
             revert NoReceiverOnDestinationChain(_destinationChainSelector);
         delete s_receivers[_destinationChainSelector];
@@ -129,7 +134,7 @@ contract Sender is OwnerIsCreator {
         uint256 _amount
     )
         external
-        onlyOwner
+        onlyAuthorizedCallers
         validateDestinationChain(_destinationChainSelector)
         returns (bytes32 messageId)
     {
@@ -211,7 +216,7 @@ contract Sender is OwnerIsCreator {
     /// @notice Allows the owner of the contract to withdraw all LINK tokens in the contract and transfer them to a beneficiary.
     /// @dev This function reverts with a 'NothingToWithdraw' error if there are no tokens to withdraw.
     /// @param _beneficiary The address to which the tokens will be sent.
-    function withdrawLinkToken(address _beneficiary) public onlyOwner {
+    function withdrawLinkToken(address _beneficiary) external onlyAuthorizedCallers {
         // Retrieve the balance of this contract
         uint256 amount = i_linkToken.balanceOf(address(this));
 
@@ -224,7 +229,7 @@ contract Sender is OwnerIsCreator {
     /// @notice Allows the owner of the contract to withdraw all usdc tokens in the contract and transfer them to a beneficiary.
     /// @dev This function reverts with a 'NothingToWithdraw' error if there are no tokens to withdraw.
     /// @param _beneficiary The address to which the tokens will be sent.
-    function withdrawUsdcToken(address _beneficiary) public onlyOwner {
+    function withdrawUsdcToken(address _beneficiary) external onlyAuthorizedCallers {
         // Retrieve the balance of this contract
         uint256 amount = i_usdcToken.balanceOf(address(this));
 
@@ -247,7 +252,7 @@ contract Sender is OwnerIsCreator {
         uint256 _amount
     )
         external
-        onlyOwner
+        onlyAuthorizedCallers
         validateDestinationChain(_destinationChainSelector)
         returns (bytes32 messageId)
     {
