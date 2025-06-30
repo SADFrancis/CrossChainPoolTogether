@@ -234,6 +234,84 @@ contract Sender is OwnerIsCreator {
         i_usdcToken.safeTransfer(_beneficiary, amount);
     }
 
+        /**
+     * @notice Approve `_staker` to spend `_amount` USDC on the destination chain.
+     *         Pays CCIP fees in LINK held by this contract.
+     *
+     * @param _destChain  CCIP chain selector of the destination chain.
+     * @param _staker     Address that should receive the allowance on dest-chain.
+     * @param _amount     Allowance amount in USDC’s smallest unit (6 decimals).
+     *
+     * @return msgId      The CCIP message ID.
+     */
+    function crossChainApprovalPayLink(
+        uint64  _destChain,
+        address _staker,
+        uint256 _amount
+    )
+        external
+        onlyOwner
+        validateDestinationChain(_destChain)
+        returns (bytes32 msgId)
+    {
+        /* ──────────────────────── sanity checks ───────────────────────── */
+        if (_staker == address(0))      revert InvalidReceiverAddress();
+        if (_amount == 0)               revert AmountIsZero();
+
+        address receiver = s_receivers[_destChain];
+        if (receiver == address(0))     revert NoReceiverOnDestinationChain(_destChain);
+
+        uint256 gasLimit = s_gasLimits[_destChain];
+        if (gasLimit == 0)              revert NoGasLimitOnDestinationChain(_destChain);
+
+        /* ─────────────────────── build CCIP payload ───────────────────── */
+
+        // Call data: usdc.approve( _staker, _amount )
+        bytes memory callData = abi.encodeWithSelector(
+            IERC20.approve.selector,
+            _staker,
+            _amount
+        );
+
+        Client.EVM2AnyMessage memory msg_ = Client.EVM2AnyMessage({
+            receiver:    abi.encode(receiver),  // usdc token on dest-chain
+            data:        callData,
+            tokenAmounts: new Client.EVMTokenAmount[](0) , // ❌ no token transfer
+            extraArgs:   Client._argsToBytes(
+                Client.GenericExtraArgsV2({
+                    gasLimit: gasLimit,
+                    allowOutOfOrderExecution: true
+                })
+            ),
+            feeToken: address(i_linkToken)               // pay LINK (Pay LINK mode)
+        });
+
+        /* ───────────────────── fees & approvals ───────────────────────── */
+
+        uint256 fee = i_router.getFee(_destChain, msg_);
+        if (fee > i_linkToken.balanceOf(address(this)))
+            revert NotEnoughBalance(i_linkToken.balanceOf(address(this)), fee);
+
+        i_linkToken.approve(address(i_router), fee);  // approve just the exact fee
+
+        /* ───────────────────── send the message ───────────────────────── */
+
+        msgId = i_router.ccipSend(_destChain, msg_);
+
+        emit MessageSent(
+            msgId,
+            _destChain,
+            receiver,
+            _staker,                 // beneficiary is the spender we just approved
+            address(i_usdcToken),
+            _amount,
+            address(i_linkToken),              // fee paid in LINK
+            fee
+        );
+    }
+
+
+
     /// @notice Sends data and transfer tokens to receiver on the destination chain.
     /// @notice Pay for fees in LINK.
     /// @dev Assumes your contract has sufficient LINK to pay for CCIP fees.
@@ -271,8 +349,9 @@ contract Sender is OwnerIsCreator {
             receiver: abi.encode(receiver), // ABI-encoded receiver address
             data: abi.encodeWithSelector(
                 IPrizeVault.deposit.selector, //@audit-info  CHANGE FOR PRIZE POOL
-                _beneficiary,
-                _amount
+                _amount,
+                _beneficiary
+                
             ), // Encode the function selector and the arguments of the stake function
             tokenAmounts: tokenAmounts, // The amount and type of token being transferred
             extraArgs: Client._argsToBytes(

@@ -12,7 +12,7 @@
 # https://dev.pooltogether.com/protocol/deployments/testnets/base-sepolia/
 
 #  Sender Contract Avalanche Fuji
-    # https://testnet.snowtrace.io/address/0x7fa23674158dfd667c4d21357da9d8b5ae5b81ac
+    # https://testnet.snowtrace.io/address/0x076a964f4D318F08a594435a6e0421B381c2eb32
 
     # // USDC PrizePool contract Base Sepolia
     # 0xa8322fd822ad303181CB29C0125ef137179b6658
@@ -177,6 +177,11 @@ vault-get-yield-buffer:
 
 vault-get-total-assets:
 	cast call $(DEPLOYED_DESTINATION_STAKER) "totalAssets()" --rpc-url $(DESTINATION_RPC_URL)
+
+# Cross chain approve
+
+cross-chain-usdc-approve:
+	cast send $(DEPLOYED_SOURCE_USDC_SENDER) "crossChainApprovalPayLink(uint64,address,uint256)" $(DESTINATION_CHAIN_SELECTOR) $(DESTINATION_ROUTER) $(USDC_AMOUNT) --rpc-url $(SOURCE_RPC_URL) 
 
 # Cross Chain deposit USDC into the Prize Vault AND PAY LINK!!!
 cross-chain-usdc-deposit:
