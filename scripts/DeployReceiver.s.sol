@@ -24,7 +24,7 @@ contract DeployReceiver is Script {
         Receiver receiver = new Receiver(
            vm.envAddress("DESTINATION_ROUTER"),// /*address*/ _router, 
            vm.envAddress("DESTINATION_USDC"),// /*address*/ _USDC,
-          vm.envAddress("DESTINATION_PRIZE_VAULT")//  /*address*/ PrizeVault
+          vm.envAddress("DEPLOYED_DESTINATION_STAKER")//  /*address*/ PrizeVault
             );
 
         console.log(

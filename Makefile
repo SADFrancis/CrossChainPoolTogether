@@ -19,12 +19,16 @@
 
     # https://sepolia.basescan.org/address/0xa8322fd822ad303181cb29c0125ef137179b6658
 
+
+# USDC Stakiing Vault contract Base Sepolia
+# https://sepolia.basescan.org/address/0x8dfec628e42cc35665c621ad04e03dc627d15432
+
     # // USDC PrizeVault contract Base Sepolia
-    # https://sepolia.basescan.org/address/0x0a966cb2574bad830effe0610c99babaf81ff38f
+    # https://sepolia.basescan.org/address/0x8138ed0afc9b26f6e5ee623dd83d00947db2e245
 
 
     # Receiver contract Base Sepolia
-    # https://sepolia.basescan.org/address/0x4a3b4fd43d5ac94e0a3227ddfcd08f36f6be5947
+    # https://sepolia.basescan.org/address/0x7e5035e84df11a48db74c2294ffcd66562328862
 
 
 # ANY CHANGES to the .envrc, run the command
@@ -46,6 +50,7 @@ GAS_AMOUNT ?=200000
 USDC_AMOUNT ?= 1000000
 # assume you approve 1 USDC token later down the road
 APPROVAL_AMOUNT ?=0x00000000000000000000000000000000000000000000000000000000000f4240 
+HEX ?= 0x0000000000000000000000000000000000000000000000000000000000000000
 
 # Default to Fuji, 
 # Example command to switch source chain to Base Sepolia
@@ -56,15 +61,20 @@ deploy-sender:
 # The constructor parameter firstDrawOpensAt is hardcoded. You have to change it relative to your current time
 # refer to the DeployPrizePool file to change
 deploy-prize-pool:
-	forge script ./scripts/DeployPrizePool.s.sol:DeployPrizePool -vvvv --broadcast --rpc-url  $(SOURCE_RPC_URL) --verify
+	forge script ./scripts/DeployPrizePool.s.sol:DeployPrizePool -vvvv --broadcast --rpc-url  $(DESTINATION_RPC_URL) --verify
+
+
+deploy-staking-vault:
+	forge script ./scripts/DeployStakingVault.s.sol:DeployStakingVault -vvvv --broadcast --rpc-url $(DESTINATION_RPC_URL) --verify
 
 # PrizePool's contract is currently hardcoded, refer to the DeployPrizeVault file to adjust
 deploy-prize-vault:
-	forge script ./scripts/DeployPrizeVault.s.sol:DeployPrizeVault -vvvv --broadcast --rpc-url  $(SOURCE_RPC_URL) --verify
+	forge script ./scripts/DeployPrizeVault.s.sol:DeployPrizeVault -vvvv --broadcast --rpc-url  $(DESTINATION_RPC_URL) --verify
 
 # PrizeVault's contract, the staker address parameter for the constructor, is currently hardcoded.
 deploy-receiver: 
 	forge script ./scripts/DeployReceiver.s.sol:DeployReceiver -vvvv --broadcast --rpc-url $(DESTINATION_RPC_URL) --verify
+
 
 
 # Assuming you have your contracts deployed: Following commands are sourced from
@@ -148,9 +158,9 @@ usdc-check-allowance:
 	cast call $(DESTINATION_USDC) "allowance(address,address)" $(TO) $(DEPLOYED_DESTINATION_STAKER) --rpc-url $(DESTINATION_RPC_URL)
 
 # Take the above output and put below:
-# $ make to-decimal AMOUNT=
+# $ make to-decimal HEX=
 to-decimal:
-	cast --to-dec $(AMOUNT)
+	cast --to-dec $(HEX)
 
 # Get usdc balance on destination chain
 usdc-get-balance:
