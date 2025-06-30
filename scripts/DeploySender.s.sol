@@ -8,8 +8,10 @@ import {Sender} from "../src/ccip-usdc-example/USDCSender.sol";
 //  echo 'eval "$(direnv hook bash)"' >> ~/.bashrc
 //  source ~/.bashrc
 // direnv allow
-// forge script ./scripts/DeploySender.s.sol:DeploySender -vvvv --broadcast --rpc-url avalancheFuji --verify
+// forge script ./scripts/DeploySender.s.sol:DeploySender -vvvv --broadcast --rpc-url avalancheFuji
 
+// Below doesn't work to verify
+// forge script ./scripts/DeploySender.s.sol:DeploySender -vvvv --broadcast --rpc-url avalancheFuji --verifier-url 'https://api.routescan.io/v2/network/mainnet/evm/43114/etherscan'--etherscan-api-key $ETHERSCAN_API_KEY
 
 contract DeploySender is Script {
     function run() public {

@@ -51,5 +51,7 @@ arbitrum-goerli = { key = "${ARBITRUM_ETHERSCAN_API_KEY}", url = "https://api-go
 optimism-goerli = { key = "${OPTIMISM_ETHERSCAN_API_KEY}", url = "https://api-goerli-optimistic.etherscan.io/api" }
 polygon-mumbai = { key = "${POLYGONSCAN_API_KEY}", url = "https://api-testnet.polygonscan.com/api" }
 #base_sepolia = {key = "${BASESCAN_API_KEY}", url = "https://api-sepolia.basescan.org/api"}
+avalancheFuji = {key = "verifyContract", url = "https://43113.routescan.io/api"}
+
 
 # See more config options https://github.com/foundry-rs/foundry/tree/master/config

@@ -68,7 +68,7 @@ contract DeployPrizePool is Script {
             creator: tx.origin, /*address creator*/
             tierLiquidityUtilizationRate: 500000000000000000, // uint256 tierLiquidityUtilizationRate
             drawPeriodSeconds: 14400, // uint48 drawPeriodSeconds
-            firstDrawOpensAt: uint48(1751223600), // uint48 firstDrawOpensAt 
+            firstDrawOpensAt: uint48(1_751_234_400), // uint48 firstDrawOpensAt 
             grandPrizePeriodDraws: 91, // uint24 grandPrizePeriodDraws
             numberOfTiers: 4, // uint8 numberOfTiers;
             tierShares: 100, // uint8 tierShares;
