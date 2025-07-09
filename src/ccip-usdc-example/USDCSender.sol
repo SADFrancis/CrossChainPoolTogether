@@ -356,11 +356,11 @@ contract Sender is OwnerIsCreator {
         // Create an EVM2AnyMessage struct in memory with necessary information for sending a cross-chain message
         Client.EVM2AnyMessage memory evm2AnyMessage 
             = _buildCCIPMessage(
-                _beneficiary,
+                receiver,
                 abi.encodeWithSelector(
-                    IStaker.stake.selector, //@audit-info  CHANGE FOR PRIZE POOL
-                    _beneficiary,
-                    _amount
+                    IPrizeVault.deposit.selector, //@audit-info  CHANGE FOR PRIZE POOL
+                    _amount,
+                    _beneficiary
                 ), // Encode the function selector and the arguments of the stake function),
                 i_payInLinkOrGasToken[true], // paying in Link
                 gasLimit,

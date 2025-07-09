@@ -12,7 +12,7 @@
 # https://dev.pooltogether.com/protocol/deployments/testnets/base-sepolia/
 
 #  Sender Contract Avalanche Fuji
-    # https://testnet.snowtrace.io/address/0x73faf5b8b4c13f9333b304694e909dff908ebe26
+    # https://testnet.snowtrace.io/address/0x2E79BF9B760D95Ebb85d960Af81D8529567B3227
 
 	
 
@@ -47,7 +47,7 @@ SOURCE_RPC_URL ?= avalancheFuji
 DESTINATION_RPC_URL ?= base-sepolia
 # SOURCE_USDC ?= SOURCE_USDC
 TO ?= $(DEV_ADDRESS)
-AMOUNT ?=1
+AMOUNT ?=70
 GAS_AMOUNT ?=200000
 USDC_AMOUNT ?= 1000000
 # assume you approve 1 USDC token later down the road
@@ -142,6 +142,10 @@ set-dc-gas-limit:
 	cast send $(DEPLOYED_SOURCE_USDC_SENDER) "setGasLimitForDestinationChain(uint64,uint256)" $(DESTINATION_CHAIN_SELECTOR) $(GAS_AMOUNT) --rpc-url $(SOURCE_RPC_URL)
 
 
+# just verifying source contract is approved
+check-sender:
+	cast call $(DEPLOYED_DESTINATION_RECEIVER) "s_senders(uint64)(address)" $(SOURCE_CHAIN_SELECTOR) --rpc-url $(DESTINATION_RPC_URL)
+
 # sanity check can deposit to PrizeVault contract on the same chain
 
 # you need to donate tokens to the vault if it's newly created to get past the yield buffer so it can accept tokens
@@ -157,7 +161,7 @@ usdc-approve:
 	cast send $(DESTINATION_USDC) "approve(address,uint256)" $(DEPLOYED_DESTINATION_STAKER) $(USDC_AMOUNT) --rpc-url $(DESTINATION_RPC_URL)
 
 usdc-check-allowance:
-	cast call $(DESTINATION_USDC) "allowance(address,address)" $(TO) $(DEPLOYED_DESTINATION_STAKER) --rpc-url $(DESTINATION_RPC_URL)
+	cast call $(DESTINATION_USDC) "allowance(address,address)" $(DEPLOYED_DESTINATION_RECEIVER) $(DEPLOYED_DESTINATION_STAKER) --rpc-url $(DESTINATION_RPC_URL)
 
 # Take the above output and put below:
 # $ make to-decimal HEX=
@@ -191,3 +195,10 @@ cross-chain-usdc-deposit:
 
 
 
+
+
+# other sanity checks
+# check gas token addresses for Sender contract
+USE_LINK ?= true
+check-gas-token:
+	cast call $(DEPLOYED_SOURCE_USDC_SENDER) "i_payInLinkOrGasToken(bool)(address)" $(USE_LINK) --rpc-url $(SOURCE_RPC_URL) 
