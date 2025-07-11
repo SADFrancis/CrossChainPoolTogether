@@ -30,7 +30,7 @@
 
 
     # Receiver contract Base Sepolia
-    # https://sepolia.basescan.org/address/0x7e5035e84df11a48db74c2294ffcd66562328862
+    # https://sepolia.basescan.org/address/0x970bf0b60580ab517A0Da4FdE184F1d03eBdfC4D
 
 
 # ANY CHANGES to the .envrc, run the command

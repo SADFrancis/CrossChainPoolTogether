@@ -28,3 +28,47 @@ export FORK_ENABLED=true
 
 # Used to report gas usage when running Forge tests
 export FORGE_GAS_REPORT=true
+
+
+# CCIP DEVELOPER ADDITIONS
+
+export ETH_KEYSTORE_ACCOUNT=""
+export ETH_PASSWORD_FILE=.""
+
+#CCIP Source Chain - Avalanche
+export SOURCE_ROUTER=
+export SOURCE_LINK=
+export SOURCE_USDC=
+export SOURCE_CHAIN_SELECTOR=
+
+#CCIP Destination Chain - Base Sepolia
+export DESTINATION_ROUTER=
+export DESTINATION_LINK=
+export DESTINATION_USDC=
+export DESTINATION_CHAIN_SELECTOR=
+export DESTINATION_PRIZE_VAULT= #You have to deploy the PrizeVault.sol contract first
+
+# BASE SEPOLIA PRIZE POOL PROTOCOL CONTRACTS
+# https://dev.pooltogether.com/protocol/deployments/base
+# https://factory.cabana.fi/
+# Use the parameters from cabana.fi to find the Claimer contract
+export YIELD_VAULT=
+export PRIZE_POOL=
+export CLAIMER=
+
+export FOUNDRY_DISABLE_NIGHTLY_WARNING=1
+
+# Used to run Hardhat scripts in fork mode
+export FORK_ENABLED=true
+
+# Used to report gas usage when running Forge tests
+export FORGE_GAS_REPORT=true
+
+# DEPLOYED CONTRACTS
+export DEPLOYED_SOURCE_USDC_SENDER=
+export DEPLOYED_DESTINATION_STAKER= #PrizeVault contract deployed in this case
+export DEPLOYED_DESTINATION_RECEIVER=
+
+
+# DEVELOPER WALLET PUBLIC ADDRESS
+export DEV_ADDRESS=

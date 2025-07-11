@@ -177,7 +177,7 @@ contract Receiver is CCIPReceiver, OwnerIsCreator {
             any2EvmMessage.data
         ); // low level call to the staker contract using the encoded function selector and arguments
         if (!success) revert CallToStakerFailed();
-        if (returnData.length > 0) revert NoReturnDataExpected();
+        //if (returnData.length > 0) revert NoReturnDataExpected();
         emit MessageReceived(
             any2EvmMessage.messageId,
             any2EvmMessage.sourceChainSelector, // fetch the source chain identifier (aka selector)
