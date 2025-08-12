@@ -59,8 +59,10 @@ contract Receiver is CCIPReceiver, OwnerIsCreator {
         ErrorCode errorCode;
     }
 
+    uint256 ZERO_AMOUNT = 0;
+
     IERC20 private immutable i_usdcToken;       //@audit-info could add extra tokens
-    address private immutable i_staker;         //@audit-info will change PrizeVault contract - this will be the Prize Vault contract
+    address private  s_staker;         //@audit-info will change PrizeVault contract - this will be the Prize Vault contract
     //address private immutable i_prizeVault;
 
     // Mapping to keep track of the sender contract per source chain.
@@ -96,8 +98,23 @@ contract Receiver is CCIPReceiver, OwnerIsCreator {
         if (_usdcToken == address(0)) revert InvalidUsdcToken();
         if (_staker == address(0)) revert InvalidStaker();
         i_usdcToken = IERC20(_usdcToken);
-        i_staker = _staker;
+        s_staker = _staker;
         i_usdcToken.safeApprove(_staker, type(uint256).max); //@audit-info dunno if I need this for the main contract
+    }
+
+    /// @dev Set contract to new address
+    /// @notice this is to extend to other ERC4626 contracts beyond PrizeVaults
+    /// @notice ideally ONLY set to contracts with said deposit function selector:
+    /// function deposit(uint256 _assets, address _receiver)
+    function setStakerContract(address _contract)external onlyOwner{
+        i_usdcToken.safeApprove(s_staker, ZERO_AMOUNT); // revoke approval of old Staker contract being able to move USDC
+        s_staker = _contract;
+        i_usdcToken.safeApprove(_contract, type(uint256).max); // grant new contract permission to move USDC
+        
+    }
+
+    function getCurrentStakerContract() public view returns (address){
+        return s_staker;
     }
 
     /// @dev Set the sender contract for a given source chain.
@@ -173,7 +190,7 @@ contract Receiver is CCIPReceiver, OwnerIsCreator {
                 any2EvmMessage.destTokenAmounts[0].token
             );
 
-        (bool success, bytes memory returnData) = i_staker.call(
+        (bool success, bytes memory returnData) = s_staker.call(
             any2EvmMessage.data
         ); // low level call to the staker contract using the encoded function selector and arguments
         if (!success) revert CallToStakerFailed();

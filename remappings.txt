@@ -16,3 +16,4 @@ pt-v5-claimable-interface/=lib/pt-v5-claimable-interface/src/
 pt-v5-staking-vault/=lib/pt-v5-staking-vault/src/
 @chainlink/contracts-ccip/=lib/chainlink/contracts/src/v0.8/ccip/
 @chainlink/contracts/=lib/chainlink/contracts/
+@chainlink/local/=lib/chainlink-local/

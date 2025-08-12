@@ -16,3 +16,15 @@ https://docs.chain.link/ccip/directory/testnet/token/USDC
 
 The faucet for USDC can be found here:
 https://faucet.circle.com/
+
+
+When deploying PrizePool in the `DeployPrizePool.s.sol` script, the constructor parameter `firstDrawOpensAt` is an `uint48` number that requires a timestamp that opens on the hour. The formula is shown below. 
+
+`(params.firstDrawOpensAt - twabPeriodOffset) % twabPeriodLength = 0`
+
+where 
+
+`twabPeriodOffset = 1716922800`
+`twabPeriodLength = 3600`
+
+Currently this was hardcoded at the time of deployment.
